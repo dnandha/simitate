@@ -237,12 +237,13 @@ class SimitateTrajectoryLoader(object):
         fig.savefig(dest_filename, bbox_inches='tight')
 
     def save_trajectory_to_file(self, filename):
-        with open(filename, 'w') as f:  # Python 3: open(..., 'wb')
-            pickle.dump(self.trajectories, f)
+        pass
+        #with open(filename, 'w') as f:  # Python 3: open(..., 'wb')
+        #    pickle.dump(self.trajectories, f)
 
     def load_trajectories_from_file(self, filename):
         with open(filename, 'rb') as f:  # Python 3: open(..., 'rb')
-            self.trajectories = pickle.load(f)
+            self.trajectories = pickle.load(f, encoding='iso-8859-1')
 
     def animate_trajectories(self, frame):
         from matplotlib.animation import FuncAnimation

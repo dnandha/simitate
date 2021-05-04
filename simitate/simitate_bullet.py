@@ -9,7 +9,7 @@ import sys
 import yaml
 import pybullet as p
 # import cv2
-import trajectory_loader
+from simitate import trajectory_loader
 import zipfile
 
 import requests
@@ -92,7 +92,9 @@ robot_name = config["robot"]["name"]
 robot_origin_pos = config["robot"]["origin_pos"]
 robot_origin_orientation = config["robot"]["origin_orientation"]
 robotId = p.loadURDF(config["robot"]["model"], robot_origin_pos, robot_origin_orientation)
-robotEndeffectorIndex = config["robot"]["endeffector_index"]
+robotEndeffectorIndex = config["robot"].get("endeffector_index")
+robotEndeffectorName = config["robot"].get("endeffector_name")
+
 
 p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
 p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
@@ -105,6 +107,14 @@ p.resetDebugVisualizerCamera(cameraDistance=2.0,
 #bad, get it from name! sawyerEndEffectorIndex = 18
 # numJoints = p.getNumJoints(sawyerId)
 numJoints = p.getNumJoints(robotId)
+
+if robotEndeffectorIndex is None and robotEndeffectorName is not None:
+    for i in range(numJoints):
+        info = p.getJointInfo(robotId, i)
+        idx, name = info[0], info[1].decode("utf-8")
+        if name == robotEndeffectorName:
+            robotEndeffectorIndex = idx
+
 #joint damping coefficents
 # jd=[0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001]
 p.setGravity(0,0,0)
@@ -197,9 +207,9 @@ while 1:
             joint_poses_gt = p.calculateInverseKinematics(robotId,
                                                           robotEndeffectorIndex,
                                                           pos,
-                                                          lowerLimits=ll,
-                                                          upperLimits=ul,
-                                                          jointRanges=jr,
+                                                          #lowerLimits=ll,
+                                                          #upperLimits=ul,
+                                                          #jointRanges=jr,
                                                           restPoses=rest_pose)
             for i in range (numJoints):
                 # jointInfo = p.getJointInfo(sawyerId, i)
@@ -215,9 +225,9 @@ while 1:
             joint_poses_open_pose = p.calculateInverseKinematics(robotId,
                                                                  robotEndeffectorIndex,
                                                                  pos_open_pose,
-                                                                 lowerLimits=ll,
-                                                                 upperLimits=ul,
-                                                                 jointRanges=jr,
+                                                                 #lowerLimits=ll,
+                                                                 #upperLimits=ul,
+                                                                 #jointRanges=jr,
                                                                  restPoses=rest_pose)
             for i in range (numJoints):
                 # jointInfo = p.getJointInfo(sawyerId, i)
